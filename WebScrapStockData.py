@@ -108,8 +108,12 @@ if __name__=="__main__":
     
     for org_symbol in org_symbol_list:
         print("org : ",org_symbol)
-        soup = get_stock_data(org_symbol=org_symbol,start_date=str(dates["twenty_years_ago_unix_timestamp"]) ,end_date=str(dates["today_unix_timestamp"]))
+        soup = get_stock_data(org_symbol=org_symbol,
+                              start_date=str(dates["twenty_years_ago_unix_timestamp"]),
+                              end_date=str(dates["today_unix_timestamp"]))
+        
         header,data = get_header(soup)
         dump_data(data=data,header=header,org_symbol=org_symbol)
         time.sleep(random.randint(1,10))
+
     print("Process Complete")

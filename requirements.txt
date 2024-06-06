@@ -1,0 +1,7 @@
+# requirements.txt
+
+mysql==0.0.3
+mysql-connector-python==8.4.0
+mysqlclient==2.2.4
+PyMySQL==1.1.1
+python-dotenv==1.0.1

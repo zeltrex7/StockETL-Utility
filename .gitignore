@@ -1,3 +1,5 @@
-env
+py_env
 stocks_data
 .vscode
+.env
+*.csv

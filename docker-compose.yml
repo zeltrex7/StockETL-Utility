@@ -4,6 +4,13 @@
 version: '2'
 
 services:
+  mysql:
+    image: mysql
+    ports: 
+      - '3307:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
   hive:
     image: apache/hive:4.0.0
     ports: 
