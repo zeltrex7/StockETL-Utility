@@ -10,14 +10,8 @@ services:
       - '3307:3306'
     environment:
       - MYSQL_ROOT_PASSWORD=root
-
-  hive:
-    image: apache/hive:4.0.0
-    ports: 
-      - 10000:10000
-      - 10002:10002
-    environment:
-      - SERVICE_NAME=hiveserver2
+    volumes:
+      - ./mysql:/var/lib/mysql
 
   airflow:
     image: apache/airflow

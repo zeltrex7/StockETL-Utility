@@ -24,31 +24,31 @@ def create_db():
     print("Schema Created")
     connection.commit()
     
-
-try:
-    connection = pymysql.connect(
-        host=os.getenv("HOST"),
-        port=int(os.getenv("PORT")),
-        database=os.getenv("DATABASE"),
-        user=os.getenv("USERNAME"),
-        password=os.getenv("PASSWORD"))
-except OperationalError as e:
-    # Error code 1049 is for "Unknown database"
-    if e.args[0] == 1049:
-        print(e)
-        print("Database does not exist")
-        create_db()
-        exit(0)
-    else:
-        print(f"OperationalError: {e}")
+if __name__ == '__main__':
+    try:
+        connection = pymysql.connect(
+            host=os.getenv("HOST"),
+            port=int(os.getenv("PORT")),
+            database=os.getenv("DATABASE"),
+            user=os.getenv("USERNAME"),
+            password=os.getenv("PASSWORD"))
+    except OperationalError as e:
+        # Error code 1049 is for "Unknown database"
+        if e.args[0] == 1049:
+            print(e)
+            print("Database does not exist")
+            create_db()
+            exit(0)
+        else:
+            print(f"OperationalError: {e}")
+            exit(1)
+    except Exception as e:
+        print(f"An error occurred: {e}")
         exit(1)
-except Exception as e:
-    print(f"An error occurred: {e}")
-    exit(1)
-else:
-    cursor = connection.cursor()
-    cursor.execute("SELECT @@version")
-    version = cursor.fetchone()
-    print(version[0])
-finally:
-    connection.close()
+    else:
+        cursor = connection.cursor()
+        cursor.execute("SELECT @@version")
+        version = cursor.fetchone()
+        print(version[0])
+    finally:
+        connection.close()

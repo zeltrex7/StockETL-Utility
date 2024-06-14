@@ -3,3 +3,4 @@ stocks_data
 .vscode
 .env
 *.csv
+mysql
