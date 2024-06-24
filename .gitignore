@@ -7,3 +7,5 @@ mysql
 redis_data
 postgresql_data
 logs
+.idea
+__pycache__
