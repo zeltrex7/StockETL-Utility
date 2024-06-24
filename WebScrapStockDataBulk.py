@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup # type: ignore
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta
 import pandas as pd

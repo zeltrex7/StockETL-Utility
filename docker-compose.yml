@@ -12,13 +12,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./mysql:/var/lib/mysql
-
-  airflow:
-    image: apache/airflow
-    ports: 
-      - 8081:8080
-    command: airflow standalone
-
+  
   spark:
     image: docker.io/bitnami/spark:3.5
     environment:
@@ -42,3 +36,56 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
+  
+  postgresql:
+    image: docker.io/bitnami/postgresql:16
+    volumes:
+      - './postgresql_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_DATABASE=bitnami_airflow
+      - POSTGRESQL_USERNAME=bn_airflow
+      - POSTGRESQL_PASSWORD=bitnami1
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+  redis:
+    image: docker.io/bitnami/redis:7.0
+    volumes:
+      - './redis_data:/bitnami'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+  airflow-scheduler:
+    image: docker.io/bitnami/airflow-scheduler:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_WEBSERVER_HOST=airflow
+      - AIRFLOW_SECRET_KEY=Test
+  airflow-worker:
+    image: docker.io/bitnami/airflow-worker:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_WEBSERVER_HOST=airflow
+      - AIRFLOW_SECRET_KEY=Test
+    volumes:
+      - ./logs:/opt/bitnami/airflow/logs
+  airflow:
+    image: docker.io/bitnami/airflow:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_PASSWORD=bitnami
+      - AIRFLOW_USERNAME=user
+      - AIRFLOW_EMAIL=user@example.com
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_SECRET_KEY=Test
+    ports:
+      - '8081:8080'
+    volumes:
+      - ./dags:/opt/bitnami/airflow/dags

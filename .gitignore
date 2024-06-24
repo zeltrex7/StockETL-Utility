@@ -4,3 +4,6 @@ stocks_data
 .env
 *.csv
 mysql
+redis_data
+postgresql_data
+logs
