@@ -20,6 +20,7 @@ def create_db():
         connection.execute(text("""CREATE TABLE IF NOT EXISTS stocks.stocks_master(
                         stock_mstr_key SMALLINT auto_increment primary key,
                         stock_name VARCHAR(50),
+                        org_name VARCHAR(250),
                         start_date DATE,
                         end_date DATE,
                         last_updated DATE
@@ -39,12 +40,12 @@ def create_db():
         print("Schema Created")
         connection.close()
 
-def insert_new_stock(stock_name,start_date,end_date,last_updated):
+def insert_new_stock(stock_name,org_name,start_date,end_date,last_updated):
      
      engine =  get_connection()
      with engine.connect() as connection:
-        query = "INSERT INTO stocks.stocks_master(stock_name,start_date,end_date,last_updated) \
-                        VALUES('"+str(stock_name)+"','"+str(start_date)+"','"+str(end_date)+"','"+str(last_updated)+"');"
+        query = "INSERT INTO stocks.stocks_master(stock_name,org_name,start_date,end_date,last_updated) \
+                        VALUES('"+str(stock_name)+"','"+str(org_name)+"','"+str(start_date)+"','"+str(end_date)+"','"+str(last_updated)+"');"
         connection.execute(text(query))
         connection.commit()
         print(stock_name+" inserted into Stock Master")
