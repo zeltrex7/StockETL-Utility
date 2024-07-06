@@ -6,8 +6,6 @@ from datetime import date
 from sqlalchemy import create_engine , text
 from mysql_helper_funtions import get_current_end_date, get_stock_mstr_key, insert_new_stock, update_stock_end_date
 import time
-file_list = os.listdir("./stocks_data")
-data =  None
 def parse_date(date_str):
     try:
         return pd.to_datetime(date_str, format='%B %d, %Y')
@@ -23,6 +21,7 @@ def convert_to_number(num_str):
 
 if __name__ == "__main__":
     start_time = time.time()
+    file_list = os.listdir("./stocks_data")
     engine = create_engine("mysql+mysqlconnector://root:root@localhost:3307")
     with engine.connect() as connection :
         for i in file_list:

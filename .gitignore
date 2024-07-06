@@ -1,5 +1,6 @@
 py_env
 stocks_data
+sftp_stocks_data
 .vscode
 .env
 *.csv

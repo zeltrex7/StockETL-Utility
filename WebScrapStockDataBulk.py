@@ -67,6 +67,7 @@ def get_most_active_stocks_list():
 def get_stock_data(org_symbol,start_date,end_date):
     req = Request('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date,
         headers=request_header)
+    print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
     webpage = urlopen(req).read()
 
     soup = BeautifulSoup(webpage, 'html.parser')
@@ -100,8 +101,30 @@ def dump_data(data,header,org_symbol,org_name):
                 count+=1
         print("Records Count :",len(data[0].findAll(['tr'])))
 
-if __name__=="__main__":
-    
+def upload_sftp():
+    import pysftp
+
+    # Define the SFTP server details
+    hostname = 'localhost'
+    port = 2222
+    username = 'abhishek'
+    password = 'password'
+    # Define connection options to disable host key checking
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None  # Disable host key checking
+    # Establish an SFTP connection
+    with pysftp.Connection(host=hostname, username=username, password=password, port=port, cnopts=cnopts) as sftp:
+        import os
+        print("Connection successfully established ... ")
+        for i in os.listdir("./stocks_data"):
+            file_name = './stocks_data/'+str(i)
+            target_file_name = '/config/sftp_stocks_data/'+str(i)
+            sftp.put(file_name,target_file_name)
+            os.remove(file_name)
+        print(f"File uploaded successfully ")
+
+
+def main():
     start_time =  time.time()
     dates = get_dates()
     print("Today's Date:", dates["today_date"])
@@ -119,6 +142,13 @@ if __name__=="__main__":
         
         header,data = get_header(soup)
         dump_data(data=data,header=header,org_symbol=org_symbol,org_name=org_name)
+        
         time.sleep(random.randint(1,5))
     print("Bulk Data Fetch time taken : ",np.round(time.time()-start_time,2),' seconds')
+    upload_sftp()
     print("Process Complete")
+
+
+if __name__=="__main__":
+    
+    main()
