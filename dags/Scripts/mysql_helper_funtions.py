@@ -8,7 +8,7 @@ from sqlalchemy import create_engine , text
 load_dotenv(dotenv_path='./.env')
 def get_connection():
     
-    engine = create_engine("mysql+mysqlconnector://root:root@localhost:3307")
+    engine = create_engine("mysql+mysqlconnector://root:root@172.18.0.1:3307")
     return engine
     
 
@@ -47,7 +47,6 @@ def insert_new_stock(stock_name,org_name,start_date,end_date,last_updated):
         query = "INSERT INTO stocks.stocks_master(stock_name,org_name,start_date,end_date,last_updated) \
                         VALUES('"+str(stock_name)+"','"+str(org_name)+"','"+str(start_date)+"','"+str(end_date)+"','"+str(last_updated)+"');"
         connection.execute(text(query))
-        connection.commit()
         print(stock_name+" inserted into Stock Master")
         connection.close()
 
@@ -75,7 +74,6 @@ def update_stock_end_date(stock_name,end_date):
     with engine.connect() as connection :
         query = "UPDATE stocks.stocks_master s SET s.end_date = '"+str(end_date)+"' WHERE s.stock_name = '"+stock_name+"';"
         connection.execute(text(query))
-        connection.commit()
         connection.close()
         return 'Record Updated'
      

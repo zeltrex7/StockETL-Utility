@@ -69,7 +69,7 @@ def get_most_active_stocks_list():
 def get_stock_data(org_symbol,start_date,end_date):
     req = Request('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date,
         headers=request_header)
-    print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
+    #print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
     webpage = urlopen(req).read()
 
     soup = BeautifulSoup(webpage, 'html.parser')
