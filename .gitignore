@@ -1,5 +1,6 @@
 py_env
 stocks_data
+consume_data
 sftp_stocks_data
 .vscode
 .env
@@ -9,4 +10,4 @@ redis_data
 postgresql_data
 logs
 .idea
-__pycache__
+*__pycache__

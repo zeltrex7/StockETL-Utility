@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd # type: ignore
 from datetime import date
 from sqlalchemy import create_engine , text
-from Scripts.mysql_helper_funtions import get_current_end_date, get_stock_mstr_key, insert_new_stock, update_stock_end_date
+from Scripts.mysql_helper_funtions import get_current_end_date, get_stock_mstr_key, insert_new_stock, update_stock_end_date ,create_db
 import time
 from dotenv import load_dotenv
 
@@ -46,60 +46,64 @@ def main():
     os.chdir(local_path)
 
     while(True):
-        with pysftp.Connection(host=hostname, username=username, password=password, port=port, cnopts=cnopts) as sftp:
-            sftp_remote_dir = '/config/sftp_stocks_data/'
-            
-            file_list = sftp.listdir(sftp_remote_dir)
-            if len(file_list)  < 1 : 
-                break
-            file_name = i = file_list[0]
-            sftp.get(sftp_remote_dir+file_name)
-            sftp.remove(sftp_remote_dir+file_name)
-            sftp.close()
-            #print(file_name)
-
-        with engine.connect() as connection :     
-                print(f"File {file_name} Fetched successfully ")
-                stock_is_new = None
-                stock_name = i.replace(".csv",'')
-                temp =  connection.execute(text("SELECT * FROM stocks.stocks_master s WHERE s.stock_name = '"+stock_name+"';"))
-                data = pd.read_csv(file_name,delimiter=';',on_bad_lines="skip")
-                data['Date'] = pd.to_datetime(data['Date'], format="%b %d, %Y").dt.date
-                if len(temp.fetchall()) == 0:
-                    print(stock_name+" doesn't_exist in Stock Master")
-                    start_date = data['Date'].min() 
-                    end_date = data['Date'].max()
-                    org_name = data['org_name'][0]
-                    insert_new_stock(stock_name=stock_name,org_name=org_name,start_date=start_date, end_date=end_date,last_updated=date.today())
-                    stock_is_new = 1
-                else:
-                    print(stock_name+ " exists in stock master")
-                    stock_is_new = 0
-                stock_mstr_key = get_stock_mstr_key(stock_name=stock_name)
-                #print(stock_name,'-',stock_mstr_key)
-                
-                data = data[['Date','Open','High','Low','Close','Adj Close','Volume']]
-                data['stock_mstr_key'] = stock_mstr_key
-                data['Volume'] = data['Volume'].apply(convert_to_number)
-
-                if stock_is_new == 1:
-                    data.to_sql('stock_data', con=engine,schema='stocks', if_exists='append', index=False)
-                else:
-                    end_date = get_current_end_date(stock_name)
-                    data = data[data['Date'] > end_date]
-                    if data.shape[0]==0:
-                        print("No records to insert in Stock Data up-to date")
-                        
-                    else:
-                        end_date = data['Date'].max()
-                        update_stock_end_date(stock_name=stock_name, end_date=end_date) 
-                        data.to_sql('stock_data', con=engine,schema='stocks', if_exists='append', index=False)
-                        print("Data Updated")
-                os.remove(i)
-                #print("file name : ",i)
         
-        print("Data Load time taken : ",np.round(time.time()-start_time,2),' seconds')
-    #os.rmdir(local_path)
+        try:
+            with pysftp.Connection(host=hostname, username=username, password=password, port=port, cnopts=cnopts) as sftp:
+                sftp_remote_dir = '/config/sftp_stocks_data/'
+                
+                file_list = sftp.listdir(sftp_remote_dir)
+                if len(file_list)  < 1 : 
+                    break
+                file_name = i = file_list[0]
+                sftp.get(sftp_remote_dir+file_name)
+                sftp.remove(sftp_remote_dir+file_name)
+                sftp.close()
+                #print(file_name)
+
+            with engine.connect() as connection :     
+                    print(f"File {file_name} Fetched successfully ")
+                    stock_is_new = None
+                    stock_name = i.replace(".csv",'')
+                    temp =  connection.execute(text("SELECT * FROM stocks.stocks_master s WHERE s.stock_name = '"+stock_name+"';"))
+                    data = pd.read_csv(file_name,delimiter=';',on_bad_lines="skip")
+                    data['Date'] = pd.to_datetime(data['Date'], format="%b %d, %Y").dt.date
+                    if len(temp.fetchall()) == 0:
+                        print(stock_name+" doesn't_exist in Stock Master")
+                        start_date = data['Date'].min() 
+                        end_date = data['Date'].max()
+                        org_name = data['org_name'][0]
+                        insert_new_stock(stock_name=stock_name,org_name=org_name,start_date=start_date, end_date=end_date,last_updated=date.today())
+                        stock_is_new = 1
+                    else:
+                        print(stock_name+ " exists in stock master")
+                        stock_is_new = 0
+                    stock_mstr_key = get_stock_mstr_key(stock_name=stock_name)
+                    #print(stock_name,'-',stock_mstr_key)
+                    
+                    data = data[['Date','Open','High','Low','Close','Adj Close','Volume']]
+                    data['stock_mstr_key'] = stock_mstr_key
+                    data['Volume'] = data['Volume'].apply(convert_to_number)
+
+                    if stock_is_new == 1:
+                        data.to_sql('stocks_data', con=engine,schema='stocks', if_exists='append', index=False)
+                    else:
+                        end_date = get_current_end_date(stock_name)
+                        data = data[data['Date'] > end_date]
+                        if data.shape[0]==0:
+                            print("No records to insert in Stock Data up-to date")
+                            
+                        else:
+                            end_date = data['Date'].max()
+                            update_stock_end_date(stock_name=stock_name, end_date=end_date) 
+                            data.to_sql('stocks_data', con=engine,schema='stocks', if_exists='append', index=False)
+                            print("Data Updated")
+                    os.remove(i)
+                    #print("file name : ",i)
+            
+            print("Data Load time taken : ",np.round(time.time()-start_time,2),' seconds')
+        except:
+            create_db()
+        #os.rmdir(local_path)
                     
     
 if __name__ == "__main__":

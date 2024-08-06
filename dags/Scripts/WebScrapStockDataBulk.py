@@ -66,7 +66,7 @@ def get_most_active_stocks_list():
         count+=1
     return org_symbol_list,org_name_list
 
-def get_stock_data(org_symbol,start_date,end_date):
+def get_stocks_data(org_symbol,start_date,end_date):
     req = Request('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date,
         headers=request_header)
     #print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
@@ -141,7 +141,7 @@ def main():
     
     for org_symbol,org_name in zip(org_symbol_list,org_name_list):
         print("org : ",org_symbol)
-        soup = get_stock_data(org_symbol=org_symbol,
+        soup = get_stocks_data(org_symbol=org_symbol,
                               start_date=str(dates["twenty_years_ago_unix_timestamp"]),
                               end_date=str(dates["today_unix_timestamp"]))
         

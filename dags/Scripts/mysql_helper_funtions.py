@@ -18,25 +18,35 @@ def create_db():
         
         connection.execute(text("""CREATE database IF NOT EXISTS stocks;"""))
         connection.execute(text("""CREATE TABLE IF NOT EXISTS stocks.stocks_master(
-                        stock_mstr_key SMALLINT auto_increment primary key,
-                        stock_name VARCHAR(50),
-                        org_name VARCHAR(250),
-                        start_date DATE,
-                        end_date DATE,
-                        last_updated DATE
-                        );"""))
-        connection.execute(text("""CREATE TABLE IF NOT EXISTS `stock_data` (
-                                    `Date` date NOT NULL,
-                                    `Open` double DEFAULT NULL,
-                                    `High` double DEFAULT NULL,
-                                    `Low` double DEFAULT NULL,
-                                    `Close` double DEFAULT NULL,
-                                    `Adj Close` double DEFAULT NULL,
-                                    `Volume` bigint DEFAULT NULL,
-                                    `stock_mstr_key` bigint NOT NULL,
-                                    PRIMARY KEY (`stock_mstr_key`,`Date`),
-                                    KEY `idx_stock_mstr_key` (`stock_mstr_key`)
+                                    stock_mstr_key SMALLINT auto_increment primary key,
+                                    stock_name VARCHAR(50),
+                                    org_name VARCHAR(250),
+                                    start_date DATE,
+                                    end_date DATE,
+                                    last_updated DATE
                                     );"""))
+        
+        connection.execute(text("""CREATE TABLE IF NOT EXISTS stocks.`stocks_data` (
+                                    `Date` date NOT NULL,
+                                    `Open` DECIMAL(20,4) DEFAULT NULL,
+                                    `High` DECIMAL(20,4) DEFAULT NULL,
+                                    `Low` DECIMAL(20,4) DEFAULT NULL,
+                                    `Close` DECIMAL(20,4) DEFAULT NULL,
+                                    `Adj Close` DECIMAL(20,4) DEFAULT NULL,
+                                    `Volume` DECIMAL(20,4) DEFAULT NULL,
+                                    `stock_mstr_key` SMALLINT NOT NULL,
+                                    PRIMARY KEY (`stock_mstr_key`,`Date`),
+                                    KEY `idx_stocks_data_stock_mstr_key` (`stock_mstr_key`)
+                                    );"""))
+        
+        connection.execute(text("""CREATE TABLE IF NOT EXISTS stocks.`dividend_data_master` (
+                                    `stock_mstr_key` SMALLINT ,
+                                    `dividend_mstr_key` SMALLINT AUTO_INCREMENT primary key,
+                                    `date` DATE ,
+                                    `dividend` DECIMAL(20,8),
+                                    KEY `idx_dividend_stock_mstr_key` (`stock_mstr_key`)
+                                    );"""))
+         
         print("Schema Created")
         connection.close()
 
