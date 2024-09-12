@@ -53,17 +53,14 @@ def get_most_active_stocks_list():
     org_symbol_list = []
     org_name_list = []
     data = soup.findAll(["table"])
-    count=0
-    for i in data[0].findAll(['td'],):
-        if count == 10:
-            count=0
-        if(count==0):
-            print('Symbol : ',i.text,end=" | ")
-            org_symbol_list.append(i.text.strip())
-        if(count==1):
-            print("Org Name : ",i.text)
-            org_name_list.append(i.text.strip())
-        count+=1
+    l =  data[0].select('tbody > tr > td > span > div > a > div > span')
+    idx_1 , idx_2 = 0 , 1
+    count = len(l)
+    while idx_2 < count:
+        org_symbol_list.append(l[idx_1].text)
+        org_name_list.append(l[idx_2].text)        
+        idx_1+=2
+        idx_2+=2        
     return org_symbol_list,org_name_list
 
 def get_stocks_data(org_symbol,start_date,end_date):
