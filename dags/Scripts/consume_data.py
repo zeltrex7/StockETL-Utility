@@ -101,8 +101,8 @@ def main():
                     #print("file name : ",i)
             
             print("Data Load time taken : ",np.round(time.time()-start_time,2),' seconds')
-        except:
-            create_db()
+        except :
+            print('error')
         #os.rmdir(local_path)
                     
     

@@ -2,14 +2,16 @@ from bs4 import BeautifulSoup # type: ignore
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta
 import pandas as pd
-import http.client as http
+import http.client as http 
+from http.client import IncompleteRead
+
 import time
 import random
 import subprocess
 import sys
 import numpy as np
-http.HTTPConnection._http_vsn = 100
-http.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+http.HTTPConnection._http_vsn = 11
+http.HTTPConnection._http_vsn_str = 'HTTP/1.1'
 request_header = {'User-Agent': 'Mozilla/5.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         }
@@ -64,12 +66,16 @@ def get_most_active_stocks_list():
     return org_symbol_list,org_name_list
 
 def get_stocks_data(org_symbol,start_date,end_date):
-    req = Request('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date,
-        headers=request_header)
-    #print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
-    webpage = urlopen(req).read()
+    soup = None
+    try:
+        req = Request('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date,
+            headers=request_header)
+        #print('https://finance.yahoo.com/quote/'+org_symbol+'/history?period1='+start_date+'&period2='+end_date)
+        webpage = urlopen(req).read()
 
-    soup = BeautifulSoup(webpage, 'html.parser')
+        soup = BeautifulSoup(webpage, 'html.parser')
+    except IncompleteRead:
+        return soup
     return soup
 
 def get_header(soup):
@@ -106,7 +112,7 @@ def upload_sftp():
     import pysftp
 
     # Define the SFTP server details
-    hostname = '172.18.0.1'
+    hostname = '172.18.0.7'
     port = 2222
     username = 'abhishek'
     password = 'password'
@@ -135,16 +141,19 @@ def main():
     print("Unix Timestamp 20 Years Ago:", dates["twenty_years_ago_unix_timestamp"])
 
     org_symbol_list,org_name_list = get_most_active_stocks_list()
-    
+    print(org_symbol_list)
     for org_symbol,org_name in zip(org_symbol_list,org_name_list):
         print("org : ",org_symbol)
         soup = get_stocks_data(org_symbol=org_symbol,
                               start_date=str(dates["twenty_years_ago_unix_timestamp"]),
                               end_date=str(dates["today_unix_timestamp"]))
         
-        header,data = get_header(soup)
-        dump_data(data=data,header=header,org_symbol=org_symbol,org_name=org_name)
-        
+        if soup is None:
+            pass
+        else:
+            header,data = get_header(soup)
+            dump_data(data=data,header=header,org_symbol=org_symbol,org_name=org_name)
+            
         time.sleep(random.randint(1,5))
     print("Bulk Data Fetch time taken : ",np.round(time.time()-start_time,2),' seconds')
     upload_sftp()
